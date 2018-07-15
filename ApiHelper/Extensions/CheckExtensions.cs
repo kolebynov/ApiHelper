@@ -11,5 +11,13 @@ namespace RestApi.Extensions
                 throw new ArgumentNullException(argumentName);
             }
         }
+
+        public static void CheckArgumentNullOrEmpty(this string argument, string argumentName)
+        {
+            if (string.IsNullOrEmpty(argument))
+            {
+                throw new ArgumentNullException(argumentName);
+            }
+        }
     }
 }

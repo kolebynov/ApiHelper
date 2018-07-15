@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace RestApi.Models
+namespace RestApi.Common
 {
     public class PaginationData
     {

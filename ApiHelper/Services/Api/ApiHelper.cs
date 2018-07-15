@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RestApi.ApiResults;
-using RestApi.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using RestApi.Common;
+using RestApi.Extensions;
 
 namespace RestApi.Services.Api
 {
@@ -19,6 +20,8 @@ namespace RestApi.Services.Api
 
         public ApiResult GetErrorResultFromModelState(ModelStateDictionary modelState)
         {
+            modelState.CheckArgumentNull(nameof(modelState));
+
             IEnumerable<ApiError> errors = modelState.Values
                 .SelectMany(s => s.Errors)
                 .Select(e => new ApiError { Message = e.ErrorMessage });
@@ -27,12 +30,16 @@ namespace RestApi.Services.Api
 
         public ApiResult GetErrorResultFromException(Exception exception)
         {
+            exception.CheckArgumentNull(nameof(exception));
+
             return ApiResult.ErrorResult(new[] {GetApiErrorFromException(exception)});
         }
 
         public async Task<GetApiResult<IEnumerable<T>>> CreateApiResultFromQueryAsync<T>(IQueryable<T> query, Guid id, 
-            GetItemsOptions options) where T : IIdentifiable
+            GetOptions options) where T : IIdentifiable
         {
+            query.CheckArgumentNull(nameof(query));
+
             int rowsTotal = 1;
             if (Equals(id, Guid.Empty))
             {

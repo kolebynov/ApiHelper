@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using RestApi.ApiResults;
+using RestApi.Common;
 using RestApi.Converters;
 using RestApi.Filters;
-using RestApi.Models;
 using RestApi.Services.Api;
 using System;
 using System.Collections.Generic;
@@ -27,7 +27,7 @@ namespace RestApi.Controllers
         protected readonly IEntityConverter<TEntity, TUpdateModel> EntityToUpdateModelConverter;
 
         [HttpGet("{id?}")]
-        public virtual async Task<GetApiResult<IEnumerable<TGetModel>>> GetItems(Guid id, GetItemsOptions options)
+        public virtual async Task<GetApiResult<IEnumerable<TGetModel>>> GetItems(Guid id, GetOptions options)
         {
             return await ApiHelper.CreateApiResultFromQueryAsync(GetQueryForGetModel(), id, options);
         }

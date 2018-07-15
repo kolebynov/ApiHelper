@@ -1,5 +1,5 @@
-﻿using RestApi.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using RestApi.Common;
 
 namespace RestApi.ApiResults
 {

@@ -1,4 +1,4 @@
-﻿using RestApi.Models;
+﻿using RestApi.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +8,7 @@ namespace RestApi.Services.Api
 {
     public interface IApiQuery
     {
-        Task<IEnumerable<T>> GetItemsFromQueryAsync<T>(IQueryable<T> query, Guid id, GetItemsOptions options)
+        Task<IEnumerable<T>> GetItemsFromQueryAsync<T>(IQueryable<T> query, Guid id, GetOptions options)
             where T : IIdentifiable;
     }
 }

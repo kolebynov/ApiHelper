@@ -1,4 +1,4 @@
-﻿using RestApi.Models;
+﻿using RestApi.Common;
 
 namespace RestApi.ApiResults
 {

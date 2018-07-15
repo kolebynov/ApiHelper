@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RestApi.ApiResults;
-using RestApi.Models;
+using RestApi.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +13,6 @@ namespace RestApi.Services.Api
         ApiResult GetErrorResultFromModelState(ModelStateDictionary modelState);
         ApiResult GetErrorResultFromException(Exception exception);
         Task<GetApiResult<IEnumerable<T>>> CreateApiResultFromQueryAsync<T>(IQueryable<T> query, Guid id,
-            GetItemsOptions options) where T : IIdentifiable;
+            GetOptions options) where T : IIdentifiable;
     }
 }
