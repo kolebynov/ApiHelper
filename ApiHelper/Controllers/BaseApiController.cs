@@ -45,7 +45,9 @@ namespace RestApi.Controllers
         [IdCheckActionFilter]
         public virtual async Task<IActionResult> UpdateItem(Guid id, [FromBody] TUpdateModel item)
         {
-            await EntityRepository.UpdateAsync(EntityToUpdateModelConverter.ToEntity(item));
+            TEntity entity = EntityToUpdateModelConverter.ToEntity(item);
+            entity.Id = id;
+            await EntityRepository.UpdateAsync(entity);
             TGetModel getModel = (await ApiQuery.GetItemsFromQueryAsync(GetQueryForGetModel(), id, null)).First();
             return CreatedAtAction("GetItems", new { id }, ApiResult.SuccessResult(new[] { getModel }));
         }

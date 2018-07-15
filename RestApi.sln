@@ -5,7 +5,9 @@ VisualStudioVersion = 15.0.27703.2026
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RestApi", "ApiHelper\RestApi.csproj", "{310AD9E1-35E5-40E4-B055-C6E475C94A8E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestRestApi", "TestRestApi\TestRestApi.csproj", "{DAF88EBD-A512-4A80-97A5-1F9E183EE532}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestRestApi", "TestRestApi\TestRestApi.csproj", "{DAF88EBD-A512-4A80-97A5-1F9E183EE532}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RestApi.EntityFrameworkCore", "RestApi.EntityFrameworkCore\RestApi.EntityFrameworkCore.csproj", "{0E5B1522-5B0E-43B7-A0A6-427FEADAE349}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{DAF88EBD-A512-4A80-97A5-1F9E183EE532}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DAF88EBD-A512-4A80-97A5-1F9E183EE532}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DAF88EBD-A512-4A80-97A5-1F9E183EE532}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0E5B1522-5B0E-43B7-A0A6-427FEADAE349}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0E5B1522-5B0E-43B7-A0A6-427FEADAE349}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0E5B1522-5B0E-43B7-A0A6-427FEADAE349}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0E5B1522-5B0E-43B7-A0A6-427FEADAE349}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
