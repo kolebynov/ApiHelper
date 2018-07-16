@@ -11,6 +11,6 @@ namespace RestApi.Common
         [Range(0, int.MaxValue)]
         public int? RowsCount { get; set; }
 
-        public ICollection<OrderOption> Order { get; set; }
+        public ICollection<SortOption> Sort { get; set; }
     }
 }

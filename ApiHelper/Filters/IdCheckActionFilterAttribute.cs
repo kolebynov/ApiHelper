@@ -3,14 +3,25 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using RestApi.ApiResults;
 using RestApi.Controllers;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using RestApi.Infrastructure;
 
 namespace RestApi.Filters
 {
     public class IdCheckActionFilterAttribute : ActionFilterAttribute
     {
         public Type EntityType { get; set; }
+
+        private readonly IExpressionBuilder _expressionBuilder;
+
+        private static readonly Dictionary<Type, Func<object, object>> EntitiesSelectorsCache = new Dictionary<Type, Func<object, object>>();
+
+        public IdCheckActionFilterAttribute(IExpressionBuilder expressionBuilder)
+        {
+            _expressionBuilder = expressionBuilder ?? throw new ArgumentNullException(nameof(expressionBuilder));
+        }
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
@@ -22,10 +33,9 @@ namespace RestApi.Filters
             {
                 Guid id = new Guid(idStr);
                 Type repositoryType = typeof(IRepository<>).MakeGenericType(entityType);
-                PropertyInfo entitiesProperty = repositoryType.GetProperty("Entities");
                 object repository =
                     context.HttpContext.RequestServices.GetService(repositoryType);
-                IQueryable<IIdentifiable> entities = (IQueryable<IIdentifiable>)entitiesProperty.GetValue(repository);
+                IQueryable<IIdentifiable> entities = GetEntitiesFromRepository(repositoryType, repository);
                 if (!entities.Any(entity => entity.Id == id))
                 {
                     context.Result = new NotFoundObjectResult(ApiResult.ErrorResult(new ApiError { Message = "Not found" }));
@@ -58,6 +68,17 @@ namespace RestApi.Filters
             }
 
             return null;
+        }
+
+        private IQueryable<IIdentifiable> GetEntitiesFromRepository(Type repositoryType, object repository)
+        {
+            if (!EntitiesSelectorsCache.TryGetValue(repositoryType, out var selector))
+            {
+                selector = _expressionBuilder.GetPropertyExpression(repositoryType, "Entities", false).Compile();
+                EntitiesSelectorsCache[repositoryType] = selector;
+            }
+
+            return (IQueryable<IIdentifiable>) selector(repository);
         }
     }
 }

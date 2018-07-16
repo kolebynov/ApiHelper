@@ -13,7 +13,7 @@ namespace RestApi.Controllers
 {
     [Produces("application/json")]
     [ServiceFilter(typeof(ModelStateCheckActionFilterAttribute))]
-    [IdCheckActionFilter]
+    [ServiceFilter(typeof(IdCheckActionFilterAttribute))]
     [ServiceFilter(typeof(ApiExceptionActionFilterAttribute))]
     public abstract class BaseApiController<TEntity, TGetModel, TAddModel, TUpdateModel> : ControllerBase
         where TEntity : class, IIdentifiable
@@ -42,7 +42,6 @@ namespace RestApi.Controllers
         }
 
         [HttpPut("{id}")]
-        [IdCheckActionFilter]
         public virtual async Task<IActionResult> UpdateItem(Guid id, [FromBody] TUpdateModel item)
         {
             TEntity entity = EntityToUpdateModelConverter.ToEntity(item);
@@ -53,7 +52,6 @@ namespace RestApi.Controllers
         }
 
         [HttpDelete("{id}")]
-        [IdCheckActionFilter]
         public virtual async Task<ApiResult> RemoveItem(Guid id)
         {
             await EntityRepository.DeleteAsync(id);

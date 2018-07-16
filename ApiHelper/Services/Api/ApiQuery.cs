@@ -37,21 +37,21 @@ namespace RestApi.Services.Api
 
             if (options != null)
             {
-                query = AddOrderToQuery(query, options.Order);
+                query = AddOrderToQuery(query, options.Sort);
             }
             
 
             return await Task.FromResult((IEnumerable<T>)query.ToArray());
         }
 
-        protected virtual IQueryable<T> AddOrderToQuery<T>(IQueryable<T> query, ICollection<OrderOption> order)
+        protected virtual IQueryable<T> AddOrderToQuery<T>(IQueryable<T> query, ICollection<SortOption> order)
         {
             if (order == null)
             {
                 return query;
             }
 
-            foreach (OrderOption orderOption in order)
+            foreach (SortOption orderOption in order)
             {
                 Func<Expression<Func<T, object>>, IQueryable<T>> orderFunc = null;
 

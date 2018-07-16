@@ -1,6 +1,6 @@
 ﻿namespace RestApi.Common
 {
-    public class OrderOption
+    public class SortOption
     {
         public string Column { get; set; }
         public OrderDirection Direction { get; set; } = OrderDirection.Asc;

@@ -15,7 +15,7 @@ namespace RestApi.Services.Api
 
         public ApiHelper(IApiQuery apiQuery)
         {
-            _apiQuery = apiQuery;
+            _apiQuery = apiQuery ?? throw new ArgumentNullException(nameof(apiQuery));
         }
 
         public ApiResult GetErrorResultFromModelState(ModelStateDictionary modelState)

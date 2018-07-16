@@ -19,6 +19,7 @@ namespace RestApi.Extensions
             serviceCollection.AddSingleton<IExpressionBuilder, ExpressionBuilder>();
             serviceCollection.AddScoped<ModelStateCheckActionFilterAttribute, ModelStateCheckActionFilterAttribute>();
             serviceCollection.AddScoped<ApiExceptionActionFilterAttribute, ApiExceptionActionFilterAttribute>();
+            serviceCollection.AddScoped<IdCheckActionFilterAttribute, IdCheckActionFilterAttribute>();
             return serviceCollection;
         }
     }
