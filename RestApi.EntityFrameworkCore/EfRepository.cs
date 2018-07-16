@@ -1,18 +1,15 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using RestApi.Extensions;
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using RestApi.Extensions;
 
 namespace RestApi.EntityFrameworkCore
 {
     public class EfRepository<TEntity> : IRepository<TEntity> 
-        where TEntity : BaseEntity
+        where TEntity : class, IIdentifiable
     {
-        private static readonly string ENTITY_NOT_FOUND = "Entity with id {0} not found.";
-
-        protected DbSet<TEntity> DbSet => DbContext.Set<TEntity>();
+        protected DbSet<TEntity> DbSet { get; }
         protected DbContext DbContext { get; }
 
         public IQueryable<TEntity> Entities => DbSet;
@@ -20,6 +17,7 @@ namespace RestApi.EntityFrameworkCore
         public EfRepository(DbContext dbContext)
         {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+            DbSet = DbContext.Set<TEntity>();
         }
 
         public async Task<TEntity> AddAsync(TEntity entity)

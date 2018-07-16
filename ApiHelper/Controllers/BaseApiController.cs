@@ -16,8 +16,8 @@ namespace RestApi.Controllers
     [IdCheckActionFilter]
     [ServiceFilter(typeof(ApiExceptionActionFilterAttribute))]
     public abstract class BaseApiController<TEntity, TGetModel, TAddModel, TUpdateModel> : ControllerBase
-        where TEntity : BaseEntity
-        where TGetModel : IIdentifiable
+        where TEntity : class, IIdentifiable
+        where TGetModel : class, IIdentifiable
     {
         protected readonly IApiQuery ApiQuery;
         protected readonly IRepository<TEntity> EntityRepository;
@@ -77,8 +77,8 @@ namespace RestApi.Controllers
     }
 
     public class BaseApiController<TEntity, TModel> : BaseApiController<TEntity, TModel, TModel, TModel>
-        where TEntity : BaseEntity
-        where TModel : IIdentifiable
+        where TEntity : class, IIdentifiable
+        where TModel : class, IIdentifiable
     {
         public BaseApiController(IRepository<TEntity> repository, IApiQuery apiQuery, IApiHelper apiHelper, IEntityConverter<TEntity, TModel> entityToGetModelConverter, 
             IEntityConverter<TEntity, TModel> entityToAddModelConverter, IEntityConverter<TEntity, TModel> entityToUpdateModelConverter) 

@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace RestApi
 {
-    public interface IRepository<TEntity> where TEntity : IIdentifiable
+    public interface IRepository<TEntity> where TEntity : class, IIdentifiable
     {
         IQueryable<TEntity> Entities { get; }
 

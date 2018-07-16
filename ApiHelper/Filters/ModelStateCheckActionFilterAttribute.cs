@@ -19,8 +19,7 @@ namespace RestApi.Filters
 
             if (!context.ModelState.IsValid)
             {
-                context.Result = new JsonResult(_apiHelper.GetErrorResultFromModelState(context.ModelState));
-                context.HttpContext.Response.StatusCode = 400;
+                context.Result = new BadRequestObjectResult(_apiHelper.GetErrorResultFromModelState(context.ModelState));
             }
         }
     }

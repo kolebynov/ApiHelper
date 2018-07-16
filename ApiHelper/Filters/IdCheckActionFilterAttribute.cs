@@ -25,22 +25,36 @@ namespace RestApi.Filters
                 PropertyInfo entitiesProperty = repositoryType.GetProperty("Entities");
                 object repository =
                     context.HttpContext.RequestServices.GetService(repositoryType);
-                IQueryable<BaseEntity> entities = (IQueryable<BaseEntity>)entitiesProperty.GetValue(repository);
+                IQueryable<IIdentifiable> entities = (IQueryable<IIdentifiable>)entitiesProperty.GetValue(repository);
                 if (!entities.Any(entity => entity.Id == id))
                 {
-                    context.Result = new JsonResult(ApiResult.ErrorResult(new ApiError {Message = "Not found"}));
-                    context.HttpContext.Response.StatusCode = 404;
+                    context.Result = new NotFoundObjectResult(ApiResult.ErrorResult(new ApiError { Message = "Not found" }));
                 }
             }
         }
 
         private Type GetEntityTypeFromContext(ActionExecutingContext context)
         {
-            Type controllerType = context.Controller.GetType();
-            if (controllerType.BaseType.IsGenericType 
-                && controllerType.BaseType.GetGenericTypeDefinition().IsAssignableFrom(typeof(BaseApiController<,,,>)))
+            Type apiControllerType = GetApiControllerType(context.Controller.GetType());
+            if (apiControllerType != null)
             {
-                return controllerType.BaseType.GenericTypeArguments[0];
+                return apiControllerType.GenericTypeArguments[0];
+            }
+
+            return null;
+        }
+
+        private Type GetApiControllerType(Type controllerType)
+        {
+            Type baseType = controllerType.BaseType;
+            while (baseType != null)
+            {
+                if (baseType.GetGenericTypeDefinition().IsAssignableFrom(typeof(BaseApiController<,,,>)))
+                {
+                    return baseType;
+                }
+
+                baseType = baseType.BaseType;
             }
 
             return null;
