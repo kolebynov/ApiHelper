@@ -5,6 +5,7 @@ namespace RestApi.Infrastructure
 {
     public interface IExpressionBuilder
     {
-        Expression<Func<object, object>> GetPropertyExpression(Type type, string propertyName, bool ignoreCase = true);
+        LambdaExpression GetPropertyExpression(Type actualType, string propertyName,
+            Type exptectedParamType = null, Type exptectedReturnType = null, bool ignoreCase = true);
     }
 }

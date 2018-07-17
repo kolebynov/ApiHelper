@@ -2,11 +2,10 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using RestApi.ApiResults;
 using RestApi.Controllers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using RestApi.Infrastructure;
+using System;
+using System.Collections.Concurrent;
+using System.Linq;
 
 namespace RestApi.Filters
 {
@@ -16,7 +15,8 @@ namespace RestApi.Filters
 
         private readonly IExpressionBuilder _expressionBuilder;
 
-        private static readonly Dictionary<Type, Func<object, object>> EntitiesSelectorsCache = new Dictionary<Type, Func<object, object>>();
+        private static readonly ConcurrentDictionary<Type, Func<object, IQueryable<IIdentifiable>>> EntitiesSelectorsCache =
+            new ConcurrentDictionary<Type, Func<object, IQueryable<IIdentifiable>>>();
 
         public IdCheckActionFilterAttribute(IExpressionBuilder expressionBuilder)
         {
@@ -72,13 +72,12 @@ namespace RestApi.Filters
 
         private IQueryable<IIdentifiable> GetEntitiesFromRepository(Type repositoryType, object repository)
         {
-            if (!EntitiesSelectorsCache.TryGetValue(repositoryType, out var selector))
-            {
-                selector = _expressionBuilder.GetPropertyExpression(repositoryType, "Entities", false).Compile();
-                EntitiesSelectorsCache[repositoryType] = selector;
-            }
+            var selector = EntitiesSelectorsCache.GetOrAdd(repositoryType, type =>
+                (Func<object, IQueryable<IIdentifiable>>) _expressionBuilder
+                    .GetPropertyExpression(type, "Entities", typeof(object),
+                        typeof(IQueryable<IIdentifiable>), false).Compile());
 
-            return (IQueryable<IIdentifiable>) selector(repository);
+            return selector(repository);
         }
     }
 }

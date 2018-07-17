@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
 using RestApi.Common;
+using System.Collections.Generic;
 
 namespace RestApi.ApiResults
 {
@@ -11,6 +12,7 @@ namespace RestApi.ApiResults
     public class ApiResult
     {
         public bool Success { get; set; }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public IEnumerable<ApiError> Errors { get; set; }
 
         public static ApiResult<TData> SuccessResult<TData>(TData data)

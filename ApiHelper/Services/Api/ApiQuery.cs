@@ -27,19 +27,15 @@ namespace RestApi.Services.Api
             {
                 query = query.Where(entity => entity.Id == id);
             }
-            else
+            else if (options != null)
             {
-                if (options != null && options.RowsCount > 0)
-                {
+                query = AddOrderToQuery(query, options.Sort);
+
+                if (options.RowsCount > 0)
+                {         
                     query = AddPaginationToQuery(query, options.Page, options.RowsCount.Value);
                 }
             }
-
-            if (options != null)
-            {
-                query = AddOrderToQuery(query, options.Sort);
-            }
-            
 
             return await Task.FromResult((IEnumerable<T>)query.ToArray());
         }

@@ -1,6 +1,6 @@
 ﻿using RestApi.Extensions;
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -8,24 +8,39 @@ namespace RestApi.Infrastructure
 {
     public class ExpressionBuilder : IExpressionBuilder
     {
-        private static readonly Dictionary<ExpressionCacheKey, Expression> ExpressionsCache = new Dictionary<ExpressionCacheKey, Expression>();
+        private static readonly ConcurrentDictionary<ExpressionCacheKey, Expression> ExpressionsCache = new ConcurrentDictionary<ExpressionCacheKey, Expression>();
 
-        public Expression<Func<object, object>> GetPropertyExpression(Type type, string propertyName, bool ignoreCase = true)
+        public LambdaExpression GetPropertyExpression(Type actualType, string propertyName,
+            Type exptectedParamType = null, Type exptectedReturnType = null, bool ignoreCase = true)
         {
-            type.CheckArgumentNull(nameof(type));
+            actualType.CheckArgumentNull(nameof(actualType));
             propertyName.CheckArgumentNullOrEmpty(nameof(propertyName));
 
-            ExpressionCacheKey cacheKey = new ExpressionCacheKey(0, type.GetHashCode(), propertyName.ToLowerInvariant().GetHashCode());
-
-            if (!ExpressionsCache.TryGetValue(cacheKey, out Expression result))
+            if (exptectedParamType == null)
             {
-                PropertyInfo property = type.GetPublicProperty(propertyName, ignoreCase);
-                ParameterExpression parameter = Expression.Parameter(typeof(object));
-                result = Expression.Lambda<Func<object, object>>(Expression.Property(Expression.Convert(parameter, type), property), parameter);
-                ExpressionsCache[cacheKey] = result;
+                exptectedParamType = actualType;
             }
 
-            return (Expression<Func<object, object>>) result;
+            PropertyInfo property = actualType.GetPublicProperty(propertyName, ignoreCase);
+            if (exptectedReturnType == null)
+            {
+                exptectedReturnType = property.PropertyType;
+            }
+
+            ExpressionCacheKey cacheKey = new ExpressionCacheKey(0,
+                HashCode.Combine(actualType, exptectedParamType, exptectedReturnType),
+                propertyName.ToLowerInvariant().GetHashCode());
+
+            return (LambdaExpression) ExpressionsCache.GetOrAdd(cacheKey, _ =>
+            {
+                ParameterExpression parameter = Expression.Parameter(exptectedParamType);
+
+                return parameter
+                    .Convert(actualType)
+                    .Property(property)
+                    .Convert(exptectedReturnType)
+                    .Lambda(new[] {parameter});
+            });
         }
 
         private struct ExpressionCacheKey
