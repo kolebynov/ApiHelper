@@ -34,11 +34,21 @@ namespace RestApi.Infrastructure
             return (LambdaExpression) ExpressionsCache.GetOrAdd(cacheKey, _ =>
             {
                 ParameterExpression parameter = Expression.Parameter(exptectedParamType);
+                Expression finalExpression = parameter;
 
-                return parameter
-                    .Convert(actualType)
-                    .Property(property)
-                    .Convert(exptectedReturnType)
+                if (actualType != exptectedParamType)
+                {
+                    finalExpression = finalExpression.Convert(actualType);
+                }
+
+                finalExpression = finalExpression.Property(property);
+
+                if (property.PropertyType != exptectedReturnType)
+                {
+                    finalExpression = finalExpression.Convert(exptectedReturnType);
+                }
+
+                return finalExpression
                     .Lambda(new[] {parameter});
             });
         }
