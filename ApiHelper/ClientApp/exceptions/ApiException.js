@@ -1,9 +1,15 @@
+//@flow
+import ApiError from "../ApiResults/ApiError";
+
 class ApiException {
-    constructor(apiErrors) {
+    _apiErrors: ApiError[];
+    _errorString: string;
+
+    constructor(apiErrors: ApiError[]) {
         this._apiErrors = apiErrors;
     }
 
-    getErrors() {
+    getErrors(): ApiError[] {
         return this._apiErrors;
     }
 
@@ -11,8 +17,8 @@ class ApiException {
         return this._errorString || (this._errorString = this._createErrorString());
     }
 
-    _createErrorString() {
-        this.getErrors().join("\n");
+    _createErrorString(): string {
+        return this.getErrors().join("\n");
     }
 }
 

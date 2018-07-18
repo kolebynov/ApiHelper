@@ -1,6 +1,4 @@
-import getHistory from "../common/History";
-import urlHelper from "../utils/UrlHelper";
-import cookieUtils from "../utils/CookieUtils";
+//@flow
 
 const statusCodes = {
     UNAUTHORIZED: 401
@@ -14,18 +12,14 @@ class BaseService {
         }
     }
 
-    _request(url, method = "GET", data) {
+    _request(url: string, method: string = "GET", data: ?Object): Promise<Object> {
         return fetch(url, this._getRequestConfig(method, data))
             .then(response => {
-                if (response.status === statusCodes.UNAUTHORIZED && window.location.pathname !== urlHelper.getLoginPagePath()) {
-                    getHistory().push(urlHelper.getLoginPageUrl(window.location.pathname));
-                }
-                
                 return response.json();
             });
     }
 
-    _getRequestConfig(method = "GET", data) {
+    _getRequestConfig(method: string = "GET", data: ?Object): Object {
         let config = Object.assign({}, this._defaultRequestOptions, { method: method });
         if (method !== "GET" && data) {
             config.body = JSON.stringify(data);
