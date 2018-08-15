@@ -4,7 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using RestApi.Common;
+using RestApi.Configuration;
 using RestApi.Extensions;
 
 namespace RestApi.Services.Api
@@ -12,10 +14,12 @@ namespace RestApi.Services.Api
     public class ApiHelper : IApiHelper
     {
         private readonly IApiQuery _apiQuery;
+        private readonly bool _showFullErrorInfo;
 
-        public ApiHelper(IApiQuery apiQuery)
+        public ApiHelper(IApiQuery apiQuery, IOptions<RestApiOptions> options)
         {
             _apiQuery = apiQuery ?? throw new ArgumentNullException(nameof(apiQuery));
+            _showFullErrorInfo = options.Value.ApiException.ShowFullErrorInfo;
         }
 
         public ApiResult GetErrorResultFromModelState(ModelStateDictionary modelState)
@@ -58,7 +62,7 @@ namespace RestApi.Services.Api
         {
             return new ApiError
             {
-                Message = exception.Message
+                Message = _showFullErrorInfo ? exception.ToString() : exception.Message
             };
         }
     }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RestApi.Configuration;
 using RestApi.EntityFrameworkCore.Extensions;
 
 namespace TestRestApi
@@ -26,6 +27,7 @@ namespace TestRestApi
                 opt.UseSqlServer("Server=localhost;Database=test;Integrated Security=True;MultipleActiveResultSets=true");
             });
             services.AddRestApiWithEntityFramework<TestContext>();
+            services.Configure<RestApiOptions>(config => config.ApiException.ShowFullErrorInfo = true);
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
             Mapper.Initialize(config => { });
