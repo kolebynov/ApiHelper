@@ -55,7 +55,7 @@ namespace RestApi.Controllers
         public virtual async Task<ApiResult> RemoveItem(Guid id)
         {
             await EntityRepository.DeleteAsync(id);
-            return new ApiResult { Success = true };
+            return ApiResult.SuccessResult(new object[0]);
         }
 
         protected BaseApiController(IRepository<TEntity> repository,

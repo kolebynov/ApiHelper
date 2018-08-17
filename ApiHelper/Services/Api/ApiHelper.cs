@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.Extensions.Options;
 using RestApi.ApiResults;
+using RestApi.Common;
+using RestApi.Configuration;
+using RestApi.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
-using RestApi.Common;
-using RestApi.Configuration;
-using RestApi.Extensions;
 
 namespace RestApi.Services.Api
 {
@@ -36,7 +36,7 @@ namespace RestApi.Services.Api
         {
             exception.CheckArgumentNull(nameof(exception));
 
-            return ApiResult.ErrorResult(new[] {GetApiErrorFromException(exception)});
+            return ApiResult.ErrorResult(GetApiErrorFromException(exception));
         }
 
         public async Task<GetApiResult<IEnumerable<T>>> CreateApiResultFromQueryAsync<T>(IQueryable<T> query, Guid id, 
