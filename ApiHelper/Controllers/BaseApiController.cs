@@ -29,7 +29,7 @@ namespace RestApi.Controllers
         [HttpGet("{id?}")]
         public virtual async Task<GetApiResult<IEnumerable<TGetModel>>> GetItems(Guid id, GetOptions options)
         {
-            return await ApiHelper.CreateApiResultFromQueryAsync(GetQueryForGetModel(), id, options);
+            return await ApiHelper.CreateApiResultFromQueryAsync(GetQueryForGetItems(), id, options);
         }
 
         [HttpPost]
@@ -70,8 +70,10 @@ namespace RestApi.Controllers
             EntityToUpdateModelConverter = entityToUpdateModelConverter ?? throw new ArgumentNullException(nameof(entityToUpdateModelConverter));
         }
 
-        private IQueryable<TGetModel> GetQueryForGetModel() =>
+        protected virtual IQueryable<TGetModel> GetQueryForGetModel() =>
             EntityRepository.Entities.Select(EntityToGetModelConverter.GetEntityToModelExpression());
+
+        protected virtual IQueryable<TGetModel> GetQueryForGetItems() => GetQueryForGetModel();
     }
 
     public class BaseApiController<TEntity, TModel> : BaseApiController<TEntity, TModel, TModel, TModel>
