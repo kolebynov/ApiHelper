@@ -44,18 +44,19 @@ namespace RestApi.Services.Api
         {
             query.CheckArgumentNull(nameof(query));
 
-            int rowsTotal = 1;
+            PaginationData pagination = null;
             if (Equals(id, Guid.Empty))
             {
-                rowsTotal = query.Count();
+                int rowsTotal = query.Count();
+                pagination = new PaginationData
+                {
+                    CurrentPage = options?.Page ?? 1,
+                    ItemsPerPage = options?.RowsCount ?? rowsTotal,
+                    TotalItems = rowsTotal
+                };
             }
 
-            return ApiResult.SuccesGetResult(await _apiQuery.GetItemsFromQueryAsync(query, id, options), new PaginationData
-            {
-                CurrentPage = options?.Page ?? 1,
-                ItemsPerPage = options?.RowsCount ?? rowsTotal,
-                TotalItems = rowsTotal
-            });
+            return ApiResult.SuccesGetResult(await _apiQuery.GetItemsFromQueryAsync(query, id, options), pagination);
         }
 
         private ApiError GetApiErrorFromException(Exception exception)
