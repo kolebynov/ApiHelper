@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Linq;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -24,13 +25,17 @@ namespace TestRestApi
         {
             services.AddDbContext<TestContext>(opt =>
             {
-                opt.UseSqlServer("Server=localhost;Database=test;Integrated Security=True;MultipleActiveResultSets=true");
+                opt.UseInMemoryDatabase("ds");
+                //opt.UseSqlServer("Server=localhost;Database=test;Integrated Security=True;MultipleActiveResultSets=true");
             });
             services.AddRestApiWithEntityFramework<TestContext>();
-            services.Configure<RestApiOptions>(config => config.ApiException.ShowFullErrorInfo = true);
+            services.Configure<RestApiOptions>(config =>
+            {
+                config.ApiException.ShowFullErrorInfo = true;
+            });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
 
-            Mapper.Initialize(config => { });
+            services.AddScoped<IQueryable<TestEntity>>(sp => sp.GetRequiredService<TestContext>().TestEntities);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

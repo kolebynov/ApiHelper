@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Microsoft.Extensions.Options;
+using RestApi.Configuration;
 using System;
 
 namespace RestApi.Infrastructure
@@ -7,19 +9,28 @@ namespace RestApi.Infrastructure
     {
         public IMapper Mapper => _mapper.Value;
 
-        private readonly Lazy<IMapper> _mapper = new Lazy<IMapper>(() => new Mapper(new MapperConfiguration(config =>
+        private readonly Lazy<IMapper> _mapper;
+
+        public MapperProvider(IOptions<RestApiOptions> options)
         {
-            config.ForAllMaps((map, expr) => expr.ForAllMembers(opt =>
+            var externalMapperConfig = options.Value.MapperConfiguration;
+
+            _mapper = new Lazy<IMapper>(() => new Mapper(new MapperConfiguration(config =>
             {
-                if (map.SourceType.GetProperty(opt.DestinationMember.Name) != null)
+                config.ForAllMaps((map, expr) => expr.ForAllOtherMembers(opt =>
                 {
-                    opt.MapFrom(opt.DestinationMember.Name);
-                }
-                else
-                {
-                    opt.Ignore();
-                }
-            }));
-        })));
+                    if (map.SourceType.GetProperty(opt.DestinationMember.Name) != null)
+                    {
+                        opt.MapFrom(opt.DestinationMember.Name);
+                    }
+                    else
+                    {
+                        opt.Ignore();
+                    }
+
+                    externalMapperConfig?.Invoke(config);
+                }));
+            })));
+        }
     }
 }

@@ -22,9 +22,7 @@ namespace RestApi.Controllers
         protected readonly IApiQuery ApiQuery;
         protected readonly IRepository<TEntity> EntityRepository;
         protected readonly IApiHelper ApiHelper;
-        protected readonly IEntityConverter<TEntity, TGetModel> EntityToGetModelConverter;
-        protected readonly IEntityConverter<TEntity, TAddModel> EntityToAddModelConverter;
-        protected readonly IEntityConverter<TEntity, TUpdateModel> EntityToUpdateModelConverter;
+        protected readonly IEntityConverter<TEntity, TGetModel, TAddModel, TUpdateModel> EntityConverter;
 
         [HttpGet("{id?}")]
         public virtual async Task<GetApiResult<IEnumerable<TGetModel>>> GetItems(Guid id, GetOptions options)
@@ -35,7 +33,7 @@ namespace RestApi.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> AddItem([FromBody] TAddModel item)
         {
-            TEntity newEntity = await EntityRepository.AddAsync(EntityToAddModelConverter.ToEntity(item));
+            TEntity newEntity = await EntityRepository.AddAsync(EntityConverter.ToEntity(item));
             TGetModel getModel = (await ApiQuery.GetItemsFromQueryAsync(GetQueryForGetModel(), newEntity.Id, null)).First();
             return CreatedAtAction("GetItems", new { id = getModel.Id },
                 ApiResult.SuccessResult(new[] { getModel }));
@@ -44,7 +42,7 @@ namespace RestApi.Controllers
         [HttpPut("{id}")]
         public virtual async Task<IActionResult> UpdateItem(Guid id, [FromBody] TUpdateModel item)
         {
-            TEntity entity = EntityToUpdateModelConverter.ToEntity(item);
+            TEntity entity = EntityConverter.ToEntity(item);
             entity.Id = id;
             await EntityRepository.UpdateAsync(entity);
             TGetModel getModel = (await ApiQuery.GetItemsFromQueryAsync(GetQueryForGetModel(), id, null)).First();
@@ -59,19 +57,16 @@ namespace RestApi.Controllers
         }
 
         protected BaseApiController(IRepository<TEntity> repository,
-            IApiQuery apiQuery, IApiHelper apiHelper, IEntityConverter<TEntity, TGetModel> entityToGetModelConverter, 
-            IEntityConverter<TEntity, TAddModel> entityToAddModelConverter, IEntityConverter<TEntity, TUpdateModel> entityToUpdateModelConverter)
+            IApiQuery apiQuery, IApiHelper apiHelper, IEntityConverter<TEntity, TGetModel, TAddModel, TUpdateModel> entityConverter)
         {
             EntityRepository = repository ?? throw new ArgumentNullException(nameof(repository));
             ApiQuery = apiQuery ?? throw new ArgumentNullException(nameof(apiQuery));
             ApiHelper = apiHelper ?? throw new ArgumentNullException(nameof(apiHelper));
-            EntityToGetModelConverter = entityToGetModelConverter ?? throw new ArgumentNullException(nameof(entityToGetModelConverter));
-            EntityToAddModelConverter = entityToAddModelConverter ?? throw new ArgumentNullException(nameof(entityToAddModelConverter));
-            EntityToUpdateModelConverter = entityToUpdateModelConverter ?? throw new ArgumentNullException(nameof(entityToUpdateModelConverter));
+            EntityConverter = entityConverter ?? throw new ArgumentNullException(nameof(entityConverter));
         }
 
         protected virtual IQueryable<TGetModel> GetQueryForGetModel() =>
-            EntityRepository.Entities.Select(EntityToGetModelConverter.GetEntityToModelExpression());
+            EntityRepository.Entities.Select(EntityConverter.GetEntityToGetModelExpression());
 
         protected virtual IQueryable<TGetModel> GetQueryForGetItems() => GetQueryForGetModel();
     }
@@ -80,9 +75,8 @@ namespace RestApi.Controllers
         where TEntity : class, IIdentifiable
         where TModel : class, IIdentifiable
     {
-        public BaseApiController(IRepository<TEntity> repository, IApiQuery apiQuery, IApiHelper apiHelper, IEntityConverter<TEntity, TModel> entityToGetModelConverter, 
-            IEntityConverter<TEntity, TModel> entityToAddModelConverter, IEntityConverter<TEntity, TModel> entityToUpdateModelConverter) 
-            : base(repository, apiQuery, apiHelper, entityToGetModelConverter, entityToAddModelConverter, entityToUpdateModelConverter)
+        public BaseApiController(IRepository<TEntity> repository, IApiQuery apiQuery, IApiHelper apiHelper, IEntityConverter<TEntity, TModel> entityConverter) 
+            : base(repository, apiQuery, apiHelper, entityConverter)
         {
         }
     }

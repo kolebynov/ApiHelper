@@ -10,9 +10,8 @@ namespace TestRestApi.Controllers
     public class Values2Controller : BaseApiController<TestEntity, TestModel2>
     {
         public Values2Controller(IRepository<TestEntity> repository, IApiQuery apiQuery, IApiHelper apiHelper, 
-            IEntityConverter<TestEntity, TestModel2> entityToGetModelConverter, IEntityConverter<TestEntity, TestModel2> entityToAddModelConverter, 
-            IEntityConverter<TestEntity, TestModel2> entityToUpdateModelConverter) 
-            : base(repository, apiQuery, apiHelper, entityToGetModelConverter, entityToAddModelConverter, entityToUpdateModelConverter)
+            IEntityConverter<TestEntity, TestModel2> entityConverter) 
+            : base(repository, apiQuery, apiHelper, entityConverter)
         {
         }
     }

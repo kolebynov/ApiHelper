@@ -1,13 +1,11 @@
-﻿using System;
-using AutoMapper;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using RestApi.Configuration;
 using RestApi.Converters;
-using RestApi.EntityActions;
 using RestApi.Filters;
 using RestApi.Infrastructure;
 using RestApi.Services.Api;
 using RestApi.Validating;
+using System;
 
 namespace RestApi.Extensions
 {
@@ -30,6 +28,7 @@ namespace RestApi.Extensions
                 });
 
             serviceCollection.AddSingleton<IApiQuery, ApiQuery>();
+            serviceCollection.AddSingleton(typeof(IEntityConverter<,,,>), typeof(DefaultEntityConverter<,,,>));
             serviceCollection.AddSingleton(typeof(IEntityConverter<,>), typeof(DefaultEntityConverter<,>));
             serviceCollection.AddSingleton<IExpressionBuilder, ExpressionBuilder>();
             serviceCollection.AddSingleton<MapperProvider, MapperProvider>();

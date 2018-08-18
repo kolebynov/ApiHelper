@@ -6,7 +6,7 @@ using RestApi.Infrastructure;
 
 namespace RestApi.Converters
 {
-    public class DefaultEntityConverter<TEntity, TModel> : IEntityConverter<TEntity, TModel>
+    public class DefaultEntityConverter<TEntity, TGetModel, TAddModel, TUpdateModel> : IEntityConverter<TEntity, TGetModel, TAddModel, TUpdateModel>
     {
         private readonly IMapper _mapper;
 
@@ -15,19 +15,20 @@ namespace RestApi.Converters
             _mapper = mapperProvider.Mapper;
         }
 
-        public Expression<Func<TEntity, TModel>> GetEntityToModelExpression()
-        {
-            return _mapper.ConfigurationProvider.ExpressionBuilder.GetMapExpression<TEntity, TModel>();
-        }
+        public virtual Expression<Func<TEntity, TGetModel>> GetEntityToGetModelExpression() =>
+            _mapper.ConfigurationProvider.ExpressionBuilder.GetMapExpression<TEntity, TGetModel>();
 
-        public TModel ToModel(TEntity entity)
-        {
-            return _mapper.Map<TEntity, TModel>(entity);
-        }
+        public virtual TEntity ToEntity(TAddModel model) =>
+            _mapper.Map<TAddModel, TEntity>(model);
 
-        public TEntity ToEntity(TModel model)
+        public virtual TEntity ToEntity(TUpdateModel model) =>
+            _mapper.Map<TUpdateModel, TEntity>(model);
+    }
+
+    public class DefaultEntityConverter<TEntity, TModel> : DefaultEntityConverter<TEntity, TModel, TModel, TModel>, IEntityConverter<TEntity, TModel>
+    {
+        public DefaultEntityConverter(MapperProvider mapperProvider) : base(mapperProvider)
         {
-            return _mapper.Map<TModel, TEntity>(model);
         }
     }
 }
