@@ -23,6 +23,9 @@ namespace RestApi.Converters
 
         public virtual TEntity ToEntity(TUpdateModel model) =>
             _mapper.Map<TUpdateModel, TEntity>(model);
+
+        public TGetModel ToGetModel(TEntity entity) =>
+            _mapper.Map<TEntity, TGetModel>(entity);
     }
 
     public class DefaultEntityConverter<TEntity, TModel> : DefaultEntityConverter<TEntity, TModel, TModel, TModel>, IEntityConverter<TEntity, TModel>
