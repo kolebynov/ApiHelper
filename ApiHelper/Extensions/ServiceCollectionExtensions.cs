@@ -28,11 +28,11 @@ namespace RestApi.Extensions
                 });
 
             serviceCollection.AddSingleton<IApiQuery, ApiQuery>();
-            serviceCollection.AddSingleton(typeof(IEntityConverter<,,,>), typeof(DefaultEntityConverter<,,,>));
-            serviceCollection.AddSingleton(typeof(IEntityConverter<,>), typeof(DefaultEntityConverter<,>));
             serviceCollection.AddSingleton<IExpressionBuilder, ExpressionBuilder>();
             serviceCollection.AddSingleton<MapperProvider, MapperProvider>();
             serviceCollection.AddSingleton(typeof(IEntityValidator<>), typeof(DataAnnotationsValidator<>));
+            serviceCollection.AddScoped(typeof(IEntityConverter<,,,>), typeof(DefaultEntityConverter<,,,>));
+            serviceCollection.AddScoped(typeof(IEntityConverter<,>), typeof(DefaultEntityConverter<,>));
             serviceCollection.AddScoped<IApiHelper, ApiHelper>();
             serviceCollection.AddScoped<ModelStateCheckActionFilterAttribute, ModelStateCheckActionFilterAttribute>();
             serviceCollection.AddScoped<ApiExceptionActionFilterAttribute, ApiExceptionActionFilterAttribute>();

@@ -11,7 +11,7 @@ namespace RestApi.Extensions
             type.CheckArgumentNull(nameof(type));
             propertyName.CheckArgumentNullOrEmpty(nameof(propertyName));
 
-            PropertyInfo result = type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            PropertyInfo result = type.GetPublicProperties()
                 .FirstOrDefault(property => property.Name.Equals(propertyName,
                     ignoreCase ? StringComparison.InvariantCultureIgnoreCase : StringComparison.InvariantCulture));
 
@@ -22,5 +22,8 @@ namespace RestApi.Extensions
 
             return result;
         }
+
+        public static PropertyInfo[] GetPublicProperties(this Type type) =>
+            type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
     }
 }

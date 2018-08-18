@@ -27,7 +27,7 @@ namespace RestApi.Controllers
         [HttpGet("{id?}")]
         public virtual async Task<GetApiResult<IEnumerable<TGetModel>>> GetItems(Guid id, GetOptions options)
         {
-            return await ApiHelper.CreateApiResultFromQueryAsync(GetQueryForGetItems(), id, options);
+            return await ApiHelper.CreateApiResultFromQueryAsync(GetQueryForGetItems(id), id, options);
         }
 
         [HttpPost]
@@ -42,7 +42,7 @@ namespace RestApi.Controllers
         [HttpPut("{id}")]
         public virtual async Task<IActionResult> UpdateItem(Guid id, [FromBody] TUpdateModel item)
         {
-            TEntity entity = EntityConverter.ToEntity(item);
+            TEntity entity = EntityConverter.ToEntity(item, id);
             entity.Id = id;
             await EntityRepository.UpdateAsync(entity);
             TGetModel getModel = (await ApiQuery.GetItemsFromQueryAsync(GetQueryForGetModel(), id, null)).First();
@@ -68,7 +68,7 @@ namespace RestApi.Controllers
         protected virtual IQueryable<TGetModel> GetQueryForGetModel() =>
             EntityRepository.Entities.Select(EntityConverter.GetEntityToGetModelExpression());
 
-        protected virtual IQueryable<TGetModel> GetQueryForGetItems() => GetQueryForGetModel();
+        protected virtual IQueryable<TGetModel> GetQueryForGetItems(Guid id) => GetQueryForGetModel();
     }
 
     public class BaseApiController<TEntity, TModel> : BaseApiController<TEntity, TModel, TModel, TModel>
