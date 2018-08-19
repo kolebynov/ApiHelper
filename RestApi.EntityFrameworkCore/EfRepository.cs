@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using RestApi.EntityActions;
+using RestApi.EntityFrameworkCore.Resources;
 using RestApi.Validating;
 
 namespace RestApi.EntityFrameworkCore
@@ -86,8 +87,17 @@ namespace RestApi.EntityFrameworkCore
             }
         }
 
-        public async Task<TEntity> GetByIdAsync(Guid id) =>
-            await DbSet.FindAsync(id);
+        public async Task<TEntity> GetByIdAsync(Guid id)
+        {
+            TEntity entity = await DbSet.FindAsync(id);
+            if (entity == null)
+            {
+                throw new ArgumentException(string.Format(RepositoryResources.EntityNotFound,
+                    typeof(TEntity).GetDisplayName(), id));
+            }
+
+            return entity;
+        }
 
         private async Task ValidateEntity(TEntity entity)
         {
