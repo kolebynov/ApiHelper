@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -14,6 +15,10 @@ namespace RestApi.Converters
     {
         private readonly IMapper _mapper;
         private readonly IQueryable<TEntity> _entities;
+        private Func<TEntity, TGetModel> _entityToGetModelFunc;
+
+        private Func<TEntity, TGetModel> EntityToGetModelFunc =>
+            _entityToGetModelFunc ?? (_entityToGetModelFunc = GetEntityToGetModelExpression().Compile());
 
         public DefaultEntityConverter(MapperProvider mapperProvider, IQueryable<TEntity> entities)
         {
@@ -32,7 +37,7 @@ namespace RestApi.Converters
             _mapper.Map(model, _entities.First(x => x.Id == id));
 
         public TGetModel ToGetModel(TEntity entity) =>
-            _mapper.Map<TEntity, TGetModel>(entity);
+            EntityToGetModelFunc(entity);
     }
 
     public class DefaultEntityConverter<TEntity, TModel> : DefaultEntityConverter<TEntity, TModel, TModel, TModel>, IEntityConverter<TEntity, TModel>
