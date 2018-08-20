@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 
 namespace RestApi
 {
+    //TODO: Remove restriction of IIdentifiable
     public interface IRepository<TEntity> where TEntity : class, IIdentifiable
     {
         IQueryable<TEntity> Entities { get; }

@@ -104,7 +104,7 @@ namespace RestApi.EntityFrameworkCore
 
             if (!validationResult.Success)
             {
-                throw new EntityValidationException(validationResult);
+                throw new ValidationException(validationResult);
             }
         }
     }
