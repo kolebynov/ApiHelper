@@ -1,12 +1,10 @@
 ﻿using AutoMapper;
 using AutoMapper.QueryableExtensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
 using RestApi.Extensions;
 using RestApi.Infrastructure;
+using System;
+using System.Linq;
+using System.Linq.Expressions;
 
 namespace RestApi.Converters
 {

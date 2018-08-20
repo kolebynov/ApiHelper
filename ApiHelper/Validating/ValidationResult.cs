@@ -1,16 +1,23 @@
-﻿namespace RestApi.Validating
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace RestApi.Validating
 {
     public class ValidationResult
     {
-        public static readonly ValidationResult SuccessResult = new ValidationResult(true, null);
+        public static readonly ValidationResult SuccessResult = new ValidationResult();
 
-        public ValidationResult(bool success, string errorMessage)
+        public bool Success => !Errors.Any();
+
+        //TODO: Move initialization to constructor if needed
+        public string ErrorMessage => Errors.Aggregate(new StringBuilder(), (sb, error) => sb.AppendLine(error.Message))
+            .ToString();
+        public IEnumerable<ValidationError> Errors { get; }
+
+        public ValidationResult(IEnumerable<ValidationError> errors = null)
         {
-            Success = success;
-            ErrorMessage = errorMessage;
+            Errors = new List<ValidationError>(errors ?? new ValidationError[0]);
         }
-
-        public bool Success { get; }
-        public string ErrorMessage { get; }
     }
 }
