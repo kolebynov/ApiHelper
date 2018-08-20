@@ -16,7 +16,7 @@ namespace RestApi.EntityFrameworkCore.Extensions
             serviceCollection.AddRestApi(setupAction);
             serviceCollection.Add(new ServiceDescriptor(typeof(IRepository<>), typeof(EfRepository<>),
                 contextLifetime));
-            serviceCollection.Add(new ServiceDescriptor(typeof(DbContext), typeof(TContext), contextLifetime));
+            serviceCollection.Add(new ServiceDescriptor(typeof(DbContext), sp => sp.GetRequiredService<TContext>(), contextLifetime));
 
             return serviceCollection;
         }

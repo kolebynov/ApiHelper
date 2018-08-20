@@ -14,7 +14,7 @@ namespace RestApi.EntityFrameworkCore
     public class EfRepository<TEntity> : IRepository<TEntity> 
         where TEntity : class, IIdentifiable
     {
-        public IQueryable<TEntity> Entities { get; }
+        public IQueryable<TEntity> Entities => DbSet;
 
         protected DbSet<TEntity> DbSet { get; }
         protected DbContext DbContext { get; }
@@ -26,11 +26,10 @@ namespace RestApi.EntityFrameworkCore
         private readonly Lazy<IEntityValidator<TEntity>> _entityValidatorLazy;
         private readonly Lazy<IEntityActionsHandler<TEntity>> _actionsHandlerLazy;
 
-        public EfRepository(DbContext dbContext, IQueryable<TEntity> entities, IServiceProvider serviceProvider)
+        public EfRepository(DbContext dbContext, IServiceProvider serviceProvider)
         {
             DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
             DbSet = DbContext.Set<TEntity>();
-            Entities = entities ?? throw new ArgumentNullException(nameof(entities));
 
             _entityValidatorLazy = new Lazy<IEntityValidator<TEntity>>(() =>
                 new GroupedEntityValidators<TEntity>(serviceProvider.GetServices<IEntityValidator<TEntity>>()));
