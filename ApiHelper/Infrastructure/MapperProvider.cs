@@ -17,8 +17,6 @@ namespace RestApi.Infrastructure
 
             _mapper = new Lazy<IMapper>(() => new Mapper(new MapperConfiguration(config =>
             {
-                externalMapperConfig?.Invoke(config);
-
                 config.ForAllMaps((map, expr) => expr.ForAllOtherMembers(opt =>
                 {
                     if (map.SourceType.GetProperty(opt.DestinationMember.Name) != null)
@@ -30,6 +28,8 @@ namespace RestApi.Infrastructure
                         opt.Ignore();
                     }
                 }));
+
+                externalMapperConfig?.Invoke(config);
             })));
         }
     }
