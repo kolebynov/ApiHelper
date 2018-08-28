@@ -43,6 +43,7 @@ namespace RestApi.Controllers
         public virtual async Task<ApiResult<TGetModel[]>> UpdateItem(Guid id, [FromBody] TUpdateModel item)
         {
             TEntity entity = EntityConverter.ToEntity(item, id);
+            entity.Id = id;
             await UpdateInternalAsync(entity, new UpdateItemContext<TUpdateModel>(id, item));
             TGetModel getModel = (await ApiQuery.GetItemsFromQueryAsync(GetQueryForGetModel(), id, null)).First();
             return ApiResult.SuccessResult(new[] {getModel});
