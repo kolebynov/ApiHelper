@@ -33,19 +33,19 @@ namespace RestApi.Controllers
         [HttpPost]
         public virtual async Task<IActionResult> AddItem([FromBody] TAddModel item)
         {
-            TEntity newEntity = await AddInternalAsync(EntityConverter.ToEntity(item));
+            TEntity newEntity = await AddInternalAsync(EntityConverter.ToEntity(item), new AddItemContext<TAddModel>(item));
             TGetModel getModel = (await ApiQuery.GetItemsFromQueryAsync(GetQueryForGetModel(), newEntity.Id, null)).First();
             return CreatedAtAction("GetItems", new { id = getModel.Id },
                 ApiResult.SuccessResult(new[] { getModel }));
         }
 
         [HttpPut("{id}")]
-        public virtual async Task<IActionResult> UpdateItem(Guid id, [FromBody] TUpdateModel item)
+        public virtual async Task<ApiResult<TGetModel[]>> UpdateItem(Guid id, [FromBody] TUpdateModel item)
         {
             TEntity entity = EntityConverter.ToEntity(item, id);
-            await UpdateInternalAsync(entity);
+            await UpdateInternalAsync(entity, new UpdateItemContext<TUpdateModel>(id, item));
             TGetModel getModel = (await ApiQuery.GetItemsFromQueryAsync(GetQueryForGetModel(), id, null)).First();
-            return CreatedAtAction("GetItems", new { id }, ApiResult.SuccessResult(new[] { getModel }));
+            return ApiResult.SuccessResult(new[] {getModel});
         }
 
         [HttpDelete("{id}")]
@@ -69,14 +69,36 @@ namespace RestApi.Controllers
 
         protected virtual IQueryable<TGetModel> GetQueryForGetItems() => GetQueryForGetModel();
 
-        protected virtual async Task<TEntity> AddInternalAsync(TEntity entity) =>
+        protected virtual async Task<TEntity> AddInternalAsync(TEntity entity, AddItemContext<TAddModel> context) =>
             await EntityRepository.AddAsync(entity);
 
-        protected virtual async Task<TEntity> UpdateInternalAsync(TEntity entity) =>
+        protected virtual async Task<TEntity> UpdateInternalAsync(TEntity entity, UpdateItemContext<TUpdateModel> context) =>
             await EntityRepository.UpdateAsync(entity);
 
         protected virtual async Task RemoveInternalAsync(Guid id) =>
             await EntityRepository.DeleteAsync(id);
+
+        public class AddItemContext<TModel>
+        {
+            public TModel Model { get; }
+
+            public AddItemContext(TModel model)
+            {
+                Model = model;
+            }
+        }
+
+        public class UpdateItemContext<TModel>
+        {
+            public TModel Model { get; }
+            public Guid Id { get; }
+
+            public UpdateItemContext(Guid id, TModel model)
+            {
+                Model = model;
+                Id = id;
+            }
+        }
     }
 
     public class BaseApiController<TEntity, TModel> : BaseApiController<TEntity, TModel, TModel, TModel>
