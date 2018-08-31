@@ -42,7 +42,7 @@ namespace RestApi.Controllers
         [HttpPost]
         public virtual async Task<ApiResult<IEnumerable<TGetSingleModel>>> AddItem([FromBody] TAddModel item)
         {
-            TEntity newEntity = await AddInternalAsync(EntityConverter.ToEntity(item), new AddItemContext<TAddModel>(item));
+            TEntity newEntity = await AddInternalAsync(EntityConverter.ToEntity(item), new AddItemContext(item));
             TGetSingleModel getModel = GetQueryForGetItem(newEntity.Id).First();
 
             Response.Headers[HeaderNames.Location] = Url.Action("GetItem",
@@ -58,7 +58,7 @@ namespace RestApi.Controllers
         {
             TEntity entity = EntityConverter.ToEntity(item, id);
             entity.Id = id;
-            await UpdateInternalAsync(entity, new UpdateItemContext<TUpdateModel>(id, item));
+            await UpdateInternalAsync(entity, new UpdateItemContext(id, item));
             TGetSingleModel getModel = GetQueryForGetItem(entity.Id).First();
 
             return ApiResult.SuccessResult((IEnumerable<TGetSingleModel>)new[] {getModel});
@@ -85,31 +85,31 @@ namespace RestApi.Controllers
         protected virtual IQueryable<TGetModel> GetQueryForGetItems() => 
             EntityRepository.Entities.Select(EntityConverter.GetEntityToGetModelExpression());
 
-        protected virtual async Task<TEntity> AddInternalAsync(TEntity entity, AddItemContext<TAddModel> context) =>
+        protected virtual async Task<TEntity> AddInternalAsync(TEntity entity, AddItemContext context) =>
             await EntityRepository.AddAsync(entity);
 
-        protected virtual async Task<TEntity> UpdateInternalAsync(TEntity entity, UpdateItemContext<TUpdateModel> context) =>
+        protected virtual async Task<TEntity> UpdateInternalAsync(TEntity entity, UpdateItemContext context) =>
             await EntityRepository.UpdateAsync(entity);
 
         protected virtual async Task RemoveInternalAsync(Guid id) =>
             await EntityRepository.DeleteAsync(id);
 
-        public class AddItemContext<TModel>
+        public class AddItemContext
         {
-            public TModel Model { get; }
+            public TAddModel Model { get; }
 
-            public AddItemContext(TModel model)
+            public AddItemContext(TAddModel model)
             {
                 Model = model;
             }
         }
 
-        public class UpdateItemContext<TModel>
+        public class UpdateItemContext
         {
-            public TModel Model { get; }
+            public TUpdateModel Model { get; }
             public Guid Id { get; }
 
-            public UpdateItemContext(Guid id, TModel model)
+            public UpdateItemContext(Guid id, TUpdateModel model)
             {
                 Model = model;
                 Id = id;
