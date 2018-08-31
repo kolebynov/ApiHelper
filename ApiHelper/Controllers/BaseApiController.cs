@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Net.Http.Headers;
 using RestApi.ApiResults;
 using RestApi.Common;
 using RestApi.Converters;
@@ -15,38 +17,51 @@ namespace RestApi.Controllers
     [ServiceFilter(typeof(ModelStateCheckActionFilterAttribute))]
     [ServiceFilter(typeof(IdCheckActionFilterAttribute))]
     [ServiceFilter(typeof(ApiExceptionActionFilterAttribute))]
-    public abstract class BaseApiController<TEntity, TGetModel, TAddModel, TUpdateModel> : ControllerBase
+    public abstract class BaseApiController<TEntity, TGetModel, TGetSingleModel, TAddModel, TUpdateModel> : ControllerBase
         where TEntity : class, IIdentifiable
+        where TGetSingleModel: class, IIdentifiable
         where TGetModel : class, IIdentifiable
     {
-        protected readonly IApiQuery ApiQuery;
         protected readonly IRepository<TEntity> EntityRepository;
         protected readonly IApiHelper ApiHelper;
-        protected readonly IEntityConverter<TEntity, TGetModel, TAddModel, TUpdateModel> EntityConverter;
+        protected readonly IEntityConverter<TEntity, TGetModel, TGetSingleModel, TAddModel, TUpdateModel> EntityConverter;
 
-        [HttpGet("{id?}")]
-        public virtual async Task<GetApiResult<IEnumerable<TGetModel>>> GetItems(Guid id, GetOptions options)
+        [HttpGet]
+        public virtual async Task<GetApiResult<IEnumerable<TGetModel>>> GetItems(GetOptions options)
         {
-            return await ApiHelper.CreateApiResultFromQueryAsync(GetQueryForGetItems(), id, options);
+            return await ApiHelper.CreateApiResultFromQueryAsync(GetQueryForGetItems(), options);
+        }
+
+        [HttpGet("{id}")]
+        public virtual Task<ApiResult<IEnumerable<TGetSingleModel>>> GetItem(Guid id)
+        {
+            return Task.FromResult(
+                ApiResult.SuccessResult((IEnumerable<TGetSingleModel>) new[] { GetQueryForGetItem(id).First()}));
         }
 
         [HttpPost]
-        public virtual async Task<IActionResult> AddItem([FromBody] TAddModel item)
+        public virtual async Task<ApiResult<IEnumerable<TGetSingleModel>>> AddItem([FromBody] TAddModel item)
         {
             TEntity newEntity = await AddInternalAsync(EntityConverter.ToEntity(item), new AddItemContext<TAddModel>(item));
-            TGetModel getModel = (await ApiQuery.GetItemsFromQueryAsync(GetQueryForGetModel(), newEntity.Id, null)).First();
-            return CreatedAtAction("GetItems", new { id = getModel.Id },
-                ApiResult.SuccessResult(new[] { getModel }));
+            TGetSingleModel getModel = GetQueryForGetItem(newEntity.Id).First();
+
+            Response.Headers[HeaderNames.Location] = Url.Action("GetItem",
+                ControllerContext.ActionDescriptor.ControllerName, new {id = getModel.Id}, Request.Scheme,
+                Request.Host.ToUriComponent());
+            Response.StatusCode = StatusCodes.Status201Created;
+
+            return ApiResult.SuccessResult((IEnumerable<TGetSingleModel>) new[] {getModel});
         }
 
         [HttpPut("{id}")]
-        public virtual async Task<ApiResult<TGetModel[]>> UpdateItem(Guid id, [FromBody] TUpdateModel item)
+        public virtual async Task<ApiResult<IEnumerable<TGetSingleModel>>> UpdateItem(Guid id, [FromBody] TUpdateModel item)
         {
             TEntity entity = EntityConverter.ToEntity(item, id);
             entity.Id = id;
             await UpdateInternalAsync(entity, new UpdateItemContext<TUpdateModel>(id, item));
-            TGetModel getModel = (await ApiQuery.GetItemsFromQueryAsync(GetQueryForGetModel(), id, null)).First();
-            return ApiResult.SuccessResult(new[] {getModel});
+            TGetSingleModel getModel = GetQueryForGetItem(entity.Id).First();
+
+            return ApiResult.SuccessResult((IEnumerable<TGetSingleModel>)new[] {getModel});
         }
 
         [HttpDelete("{id}")]
@@ -56,19 +71,19 @@ namespace RestApi.Controllers
             return ApiResult.SuccessResult(new object[0]);
         }
 
-        protected BaseApiController(IRepository<TEntity> repository,
-            IApiQuery apiQuery, IApiHelper apiHelper, IEntityConverter<TEntity, TGetModel, TAddModel, TUpdateModel> entityConverter)
+        protected BaseApiController(IRepository<TEntity> repository, IApiHelper apiHelper, 
+            IEntityConverter<TEntity, TGetModel, TGetSingleModel, TAddModel, TUpdateModel> entityConverter)
         {
             EntityRepository = repository ?? throw new ArgumentNullException(nameof(repository));
-            ApiQuery = apiQuery ?? throw new ArgumentNullException(nameof(apiQuery));
             ApiHelper = apiHelper ?? throw new ArgumentNullException(nameof(apiHelper));
             EntityConverter = entityConverter ?? throw new ArgumentNullException(nameof(entityConverter));
         }
 
-        protected virtual IQueryable<TGetModel> GetQueryForGetModel() =>
-            EntityRepository.Entities.Select(EntityConverter.GetEntityToGetModelExpression());
+        protected virtual IQueryable<TGetSingleModel> GetQueryForGetItem(Guid id) => 
+            EntityRepository.Entities.Where(entity => entity.Id == id).Select(EntityConverter.GetEntityToGetSingleModelExpression());
 
-        protected virtual IQueryable<TGetModel> GetQueryForGetItems() => GetQueryForGetModel();
+        protected virtual IQueryable<TGetModel> GetQueryForGetItems() => 
+            EntityRepository.Entities.Select(EntityConverter.GetEntityToGetModelExpression());
 
         protected virtual async Task<TEntity> AddInternalAsync(TEntity entity, AddItemContext<TAddModel> context) =>
             await EntityRepository.AddAsync(entity);
@@ -102,12 +117,12 @@ namespace RestApi.Controllers
         }
     }
 
-    public class BaseApiController<TEntity, TModel> : BaseApiController<TEntity, TModel, TModel, TModel>
+    public class BaseApiController<TEntity, TModel> : BaseApiController<TEntity, TModel, TModel, TModel, TModel>
         where TEntity : class, IIdentifiable
         where TModel : class, IIdentifiable
     {
-        public BaseApiController(IRepository<TEntity> repository, IApiQuery apiQuery, IApiHelper apiHelper, IEntityConverter<TEntity, TModel> entityConverter) 
-            : base(repository, apiQuery, apiHelper, entityConverter)
+        public BaseApiController(IRepository<TEntity> repository, IApiHelper apiHelper, IEntityConverter<TEntity, TModel, TModel, TModel, TModel> entityConverter) 
+            : base(repository, apiHelper, entityConverter)
         {
         }
     }

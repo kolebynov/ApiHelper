@@ -1,11 +1,11 @@
 ﻿using RestApi.Common;
+using RestApi.Extensions;
 using RestApi.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using RestApi.Extensions;
 
 namespace RestApi.Services.Api
 {
@@ -18,16 +18,12 @@ namespace RestApi.Services.Api
             _expressionBuilder = expressionBuilder ?? throw new ArgumentNullException(nameof(expressionBuilder));
         }
 
-        public async Task<IEnumerable<T>> GetItemsFromQueryAsync<T>(IQueryable<T> query, Guid id, GetOptions options)
+        public virtual async Task<IEnumerable<T>> GetItemsFromQueryAsync<T>(IQueryable<T> query, GetOptions options)
             where T : IIdentifiable
         {
             query.CheckArgumentNull(nameof(query));
 
-            if (!Equals(id, Guid.Empty))
-            {
-                query = query.Where(entity => entity.Id == id);
-            }
-            else if (options != null)
+            if (options != null)
             {
                 query = AddOrderToQuery(query, options.Sort);
 

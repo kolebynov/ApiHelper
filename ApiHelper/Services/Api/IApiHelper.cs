@@ -12,7 +12,7 @@ namespace RestApi.Services.Api
     {
         ApiResult GetErrorResultFromModelState(ModelStateDictionary modelState);
         ApiResult GetErrorResultFromException(Exception exception);
-        Task<GetApiResult<IEnumerable<T>>> CreateApiResultFromQueryAsync<T>(IQueryable<T> query, Guid id,
-            GetOptions options) where T : IIdentifiable;
+        Task<GetApiResult<IEnumerable<T>>> CreateApiResultFromQueryAsync<T>(IQueryable<T> query, GetOptions options)
+            where T : IIdentifiable;
     }
 }

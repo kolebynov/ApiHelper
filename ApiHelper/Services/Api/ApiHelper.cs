@@ -22,7 +22,7 @@ namespace RestApi.Services.Api
             _showFullErrorInfo = options.Value.ApiException.ShowFullErrorInfo;
         }
 
-        public ApiResult GetErrorResultFromModelState(ModelStateDictionary modelState)
+        public virtual ApiResult GetErrorResultFromModelState(ModelStateDictionary modelState)
         {
             modelState.CheckArgumentNull(nameof(modelState));
 
@@ -32,31 +32,26 @@ namespace RestApi.Services.Api
             return ApiResult.ErrorResult(errors);
         }
 
-        public ApiResult GetErrorResultFromException(Exception exception)
+        public virtual ApiResult GetErrorResultFromException(Exception exception)
         {
             exception.CheckArgumentNull(nameof(exception));
 
             return ApiResult.ErrorResult(GetApiErrorFromException(exception));
         }
 
-        public async Task<GetApiResult<IEnumerable<T>>> CreateApiResultFromQueryAsync<T>(IQueryable<T> query, Guid id, 
+        public virtual async Task<GetApiResult<IEnumerable<T>>> CreateApiResultFromQueryAsync<T>(IQueryable<T> query,
             GetOptions options) where T : IIdentifiable
         {
             query.CheckArgumentNull(nameof(query));
 
-            PaginationData pagination = null;
-            if (Equals(id, Guid.Empty))
-            {
-                int rowsTotal = query.Count();
-                pagination = new PaginationData
-                {
-                    CurrentPage = options?.Page ?? 1,
-                    ItemsPerPage = options?.RowsCount ?? rowsTotal,
-                    TotalItems = rowsTotal
-                };
-            }
+            int rowsTotal = query.Count();
 
-            return ApiResult.SuccesGetResult(await _apiQuery.GetItemsFromQueryAsync(query, id, options), pagination);
+            return ApiResult.SuccesGetResult(await _apiQuery.GetItemsFromQueryAsync(query, options), new PaginationData
+            {
+                CurrentPage = options?.Page ?? 1,
+                ItemsPerPage = options?.RowsCount ?? rowsTotal,
+                TotalItems = rowsTotal
+            });
         }
 
         private ApiError GetApiErrorFromException(Exception exception)

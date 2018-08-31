@@ -8,7 +8,8 @@ using System.Linq.Expressions;
 
 namespace RestApi.Converters
 {
-    public class DefaultEntityConverter<TEntity, TGetModel, TAddModel, TUpdateModel> : IEntityConverter<TEntity, TGetModel, TAddModel, TUpdateModel>
+    public class DefaultEntityConverter<TEntity, TGetModel, TGetSingleModel, TAddModel, TUpdateModel> 
+        : IEntityConverter<TEntity, TGetModel, TGetSingleModel, TAddModel, TUpdateModel>
         where TEntity : IIdentifiable
     {
         private readonly IMapper _mapper;
@@ -28,6 +29,9 @@ namespace RestApi.Converters
         public virtual Expression<Func<TEntity, TGetModel>> GetEntityToGetModelExpression() =>
             _mapper.ConfigurationProvider.ExpressionBuilder.GetMapExpression<TEntity, TGetModel>();
 
+        public virtual Expression<Func<TEntity, TGetSingleModel>> GetEntityToGetSingleModelExpression() =>
+            _mapper.ConfigurationProvider.ExpressionBuilder.GetMapExpression<TEntity, TGetSingleModel>();
+
         public virtual TEntity ToEntity(TAddModel model) =>
             _mapper.Map<TAddModel, TEntity>(model);
 
@@ -36,13 +40,5 @@ namespace RestApi.Converters
 
         public TGetModel ToGetModel(TEntity entity) =>
             EntityToGetModelFunc(entity);
-    }
-
-    public class DefaultEntityConverter<TEntity, TModel> : DefaultEntityConverter<TEntity, TModel, TModel, TModel>, IEntityConverter<TEntity, TModel>
-        where TEntity : IIdentifiable
-    {
-        public DefaultEntityConverter(MapperProvider mapperProvider, IQueryable<TEntity> entities) : base(mapperProvider, entities)
-        {
-        }
     }
 }

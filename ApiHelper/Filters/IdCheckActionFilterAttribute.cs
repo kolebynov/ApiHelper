@@ -59,7 +59,7 @@ namespace RestApi.Filters
             Type baseType = controllerType.BaseType;
             while (baseType != null)
             {
-                if (baseType.GetGenericTypeDefinition().IsAssignableFrom(typeof(BaseApiController<,,,>)))
+                if (baseType.GetGenericTypeDefinition().IsAssignableFrom(typeof(BaseApiController<,,,,>)))
                 {
                     return baseType;
                 }

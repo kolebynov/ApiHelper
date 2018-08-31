@@ -9,9 +9,9 @@ namespace TestRestApi.Controllers
     [Route("api/[controller]")]
     public class ValuesController : BaseApiController<TestEntity, TestModel>
     {
-        public ValuesController(IRepository<TestEntity> repository, IApiQuery apiQuery, IApiHelper apiHelper, 
-            IEntityConverter<TestEntity, TestModel> entityConverter) 
-            : base(repository, apiQuery, apiHelper, entityConverter)
+        public ValuesController(IRepository<TestEntity> repository, IApiHelper apiHelper, 
+            IEntityConverter<TestEntity, TestModel, TestModel, TestModel, TestModel> entityConverter) 
+            : base(repository, apiHelper, entityConverter)
         {
         }
     }
