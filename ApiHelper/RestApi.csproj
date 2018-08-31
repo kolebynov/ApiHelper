@@ -3,7 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.1</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <Version>1.0.1</Version>
+    <Version>1.0.1.3</Version>
+    <PackageProjectUrl>https://github.com/kolebynov/ApiHelper</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/kolebynov/ApiHelper</RepositoryUrl>
   </PropertyGroup>
 
   <ItemGroup>
