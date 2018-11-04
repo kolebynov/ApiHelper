@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using RestApi.Common;
 using RestApi.Infrastructure;
 
 namespace RestApi.Extensions
@@ -13,6 +14,14 @@ namespace RestApi.Extensions
 
             return (Expression<Func<T, object>>) expressionBuilder.GetPropertyExpression(typeof(T),
                 propertyName, typeof(T), typeof(object), ignoreCase);
+        }
+
+        public static Expression<Func<T, bool>> GetFilterExpression<T>(this IExpressionBuilder expressionBuilder,
+            Filter filter)
+        {
+            expressionBuilder.CheckArgumentNull(nameof(expressionBuilder));
+
+            return (Expression<Func<T, bool>>)expressionBuilder.GetFilterExpression(typeof(T), filter);
         }
 
         public static UnaryExpression Convert(this Expression expression, Type type)

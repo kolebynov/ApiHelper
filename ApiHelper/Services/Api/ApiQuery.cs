@@ -25,7 +25,7 @@ namespace RestApi.Services.Api
 
             if (options != null)
             {
-                query = AddOrderToQuery(query, options.Sort);
+                query = AddOrderToQuery(AddFiltersToQuery(query, options.Filters), options.Sort);
 
                 if (options.RowsCount > 0)
                 {         
@@ -36,7 +36,22 @@ namespace RestApi.Services.Api
             return await Task.FromResult((IEnumerable<T>)query.ToArray());
         }
 
-        protected virtual IQueryable<T> AddOrderToQuery<T>(IQueryable<T> query, ICollection<SortOption> order)
+        protected virtual IQueryable<T> AddFiltersToQuery<T>(IQueryable<T> query, IEnumerable<Filter> filters)
+        {
+            if (filters == null)
+            {
+                return query;
+            }
+
+            foreach (Filter filter in filters)
+            {
+                query = query.Where(_expressionBuilder.GetFilterExpression<T>(filter));
+            }
+
+            return query;
+        }
+
+        protected virtual IQueryable<T> AddOrderToQuery<T>(IQueryable<T> query, IEnumerable<SortOption> order)
         {
             if (order == null)
             {

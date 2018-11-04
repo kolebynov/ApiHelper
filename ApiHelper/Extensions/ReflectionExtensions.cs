@@ -25,7 +25,7 @@ namespace RestApi.Extensions
         }
 
         public static PropertyInfo[] GetPublicProperties(this Type type) =>
-            type.GetProperties(BindingFlags.Public | BindingFlags.Instance);
+            type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static);
 
         public static string GetDisplayName(this Type type) =>
             type.GetCustomAttribute<DisplayAttribute>()?.Name ?? type.Name;

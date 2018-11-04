@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RestApi.Extensions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using RestApi.EntityActions;
 using RestApi.EntityFrameworkCore.Resources;
+using RestApi.Extensions;
 using RestApi.Validating;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace RestApi.EntityFrameworkCore
 {

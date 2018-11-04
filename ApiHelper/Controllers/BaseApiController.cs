@@ -42,7 +42,7 @@ namespace RestApi.Controllers
         [HttpPost]
         public virtual async Task<ApiResult<IEnumerable<TGetSingleModel>>> AddItem([FromBody] TAddModel item)
         {
-            TEntity newEntity = await AddInternalAsync(EntityConverter.ToEntity(item), new AddItemContext(item));
+            TEntity newEntity = await AddAsync(item);
             TGetSingleModel getModel = GetQueryForGetItem(newEntity.Id).First();
 
             Response.Headers[HeaderNames.Location] = Url.Action("GetItem",
@@ -56,10 +56,8 @@ namespace RestApi.Controllers
         [HttpPut("{id}")]
         public virtual async Task<ApiResult<IEnumerable<TGetSingleModel>>> UpdateItem(Guid id, [FromBody] TUpdateModel item)
         {
-            TEntity entity = EntityConverter.ToEntity(item, id);
-            entity.Id = id;
-            await UpdateInternalAsync(entity, new UpdateItemContext(id, item));
-            TGetSingleModel getModel = GetQueryForGetItem(entity.Id).First();
+            TEntity updatedEntity = await UpdateAsync(id, item);
+            TGetSingleModel getModel = GetQueryForGetItem(updatedEntity.Id).First();
 
             return ApiResult.SuccessResult((IEnumerable<TGetSingleModel>)new[] {getModel});
         }
@@ -85,8 +83,17 @@ namespace RestApi.Controllers
         protected virtual IQueryable<TGetModel> GetQueryForGetItems() => 
             EntityRepository.Entities.Select(EntityConverter.GetEntityToGetModelExpression());
 
+        protected virtual async Task<TEntity> AddAsync(TAddModel item) =>
+            await AddInternalAsync(EntityConverter.ToEntity(item), new AddItemContext(item));
+
         protected virtual async Task<TEntity> AddInternalAsync(TEntity entity, AddItemContext context) =>
             await EntityRepository.AddAsync(entity);
+
+        protected virtual async Task<TEntity> UpdateAsync(Guid id, TUpdateModel item)
+        {
+            TEntity entity = EntityConverter.ToEntity(item, id);
+            return await UpdateInternalAsync(entity, new UpdateItemContext(id, item));
+        }
 
         protected virtual async Task<TEntity> UpdateInternalAsync(TEntity entity, UpdateItemContext context) =>
             await EntityRepository.UpdateAsync(entity);
